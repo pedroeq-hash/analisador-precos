@@ -24,17 +24,20 @@ produtos.toml ──► extrair.py ──► precos.csv ──► analise.py ─
 
 - **Avisos** (`precos/main.py`): só quando um produto *vira* COMPRA ou bate um novo mínimo, e quando a leitura falha 3 dias seguidos (a loja provavelmente mudou a página).
 
-Os dados (links e histórico) ficam num repositório privado separado, que roda este código uma vez por dia com GitHub Actions.
+Os dados (links e histórico) ficam num repositório privado separado. A coleta roda uma vez por dia no meu PC (Agendador do Windows) e faz push do CSV pra lá.
+
+**Por que no PC e não na nuvem:** testei pelo GitHub Actions e Pichau e Terabyte responderam 403 (Cloudflare bloqueia IP de datacenter), e a Amazon devolveu página sem preço (CAPTCHA). Pela internet residencial as seis lojas funcionam.
 
 ## Lojas
 
-| Loja | Situação |
-|---|---|
-| Kabum, Terabyte, Renner, Riachuelo | ✅ JSON-LD (preço à vista) |
-| Pichau | ✅ específico: o JSON-LD traz o parcelado, o Pix vem de outro campo |
-| Amazon | ✅ específico (sem JSON-LD de produto) |
-| Mercado Livre | 🚧 a página não traz preço; caminho: API oficial |
-| Shein, Shopee, TikTok Shop | ❌ preço só carregado por JavaScript |
+| Loja | Como | Da nuvem |
+|---|---|---|
+| Kabum, Renner, Riachuelo | JSON-LD (preço à vista) | ✅ |
+| Terabyte | JSON-LD (preço à vista) | ❌ 403 |
+| Pichau | específico: o JSON-LD traz o parcelado, o Pix vem de outro campo | ❌ 403 |
+| Amazon | específico (sem JSON-LD de produto) | ❌ CAPTCHA |
+| Mercado Livre | 🚧 a página não traz preço; caminho: API oficial | |
+| Shein, Shopee, TikTok Shop | ❌ preço só carregado por JavaScript | |
 
 ## Rodar local
 
