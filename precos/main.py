@@ -69,6 +69,9 @@ def processar(produto: dict, linhas: list[dict], hoje: str) -> tuple[dict, str |
     alvo = produto.get("alvo")
     status, motivo = veredito(hist, alvo)
     print(f"{produto['nome']}: {status} - {motivo}")
+    ultima_lida = next((l for l in reversed(linhas[:-1]) if l["preco"]), None)  # ignora dias de falha
+    if ultima_lida and ultima_lida["disponivel"] == "0":
+        return nova, f"📦 Voltou ao estoque: {produto['nome']}\n{status}: {motivo}\n{produto['url']}"
     anterior = veredito(hist[:-1], alvo)[0] if len(hist) > 1 else None
     novo_minimo = len(hist) > 1 and hist[-1][1] < min(p for _, p in hist[:-1])
     if status == "COMPRA" and (anterior != "COMPRA" or novo_minimo):

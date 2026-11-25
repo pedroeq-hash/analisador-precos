@@ -65,18 +65,32 @@ def _da_meta(html: str):
     return None
 
 
-def extrair_preco(html: str, url: str = "") -> tuple[float, bool] | None:
-    """Devolve (preço, disponível) ou None se não achou. `url` é a final, depois dos redirecionamentos."""
-    geral = _do_json_ld(html) or _da_meta(html)
+def candidatos(html: str, url: str = "") -> dict[str, tuple[float, bool] | None]:
+    """O que cada método achou. A chave "específico" só existe pra loja com extrator próprio."""
+    c = {"JSON-LD": _do_json_ld(html), "meta tag": _da_meta(html)}
+    geral = c["JSON-LD"] or c["meta tag"]
     for dominio, padrao in ESPECIFICOS.items():
         if dominio in url:
             m = re.search(padrao, html)
-            return (float(m.group(1)), geral[1] if geral else True) if m else None
-    return geral
+            c["específico"] = (float(m.group(1)), geral[1] if geral else True) if m else None
+    return c
 
 
-def preco(url: str) -> tuple[float, bool] | None:
+def extrair_preco(html: str, url: str = "") -> tuple[float, bool] | None:
+    """Devolve (preço, disponível) ou None se não achou. `url` é a final, depois dos redirecionamentos."""
+    c = candidatos(html, url)
+    if "específico" in c:  # loja com extrator próprio: os genéricos dão preço errado ali
+        return c["específico"]
+    return c["JSON-LD"] or c["meta tag"]
+
+
+def baixar(url: str) -> tuple[str, str]:
+    """Devolve (html, url final depois dos redirecionamentos)."""
     # impersonate imita o TLS/cabeçalhos do Chrome; sem isso o Cloudflare bloqueia várias lojas
     r = requests.get(url, impersonate="chrome", timeout=30)
     r.raise_for_status()
-    return extrair_preco(r.text, r.url)
+    return r.text, r.url
+
+
+def preco(url: str) -> tuple[float, bool] | None:
+    return extrair_preco(*baixar(url))

@@ -44,6 +44,16 @@ def test_nao_repete_aviso_se_continua_compra_sem_novo_minimo(coleta):
     assert coleta((80.0, True))(linhas(*[100] * 20, 80))[1] is None
 
 
+def test_avisa_quando_volta_ao_estoque_mesmo_com_falha_no_meio(coleta):
+    hist = linhas(100, 100, None)
+    hist[1]["disponivel"] = "0"
+    assert "Voltou ao estoque" in coleta((100.0, True))(hist)[1]
+
+
+def test_disponivel_de_novo_sem_ter_esgotado_nao_avisa_estoque(coleta):
+    assert coleta((100.0, True))(linhas(100, None, 100))[1] is None
+
+
 def test_indisponivel_nao_avisa(coleta):
     assert coleta((10.0, False))(linhas(*[100] * 20))[1] is None
 
