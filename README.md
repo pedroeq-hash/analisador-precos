@@ -37,7 +37,16 @@ Os dados (links e histórico) ficam num repositório privado separado. A coleta 
 | Pichau | específico: o JSON-LD traz o parcelado, o Pix vem de outro campo | ❌ 403 |
 | Amazon | específico (sem JSON-LD de produto) | ❌ CAPTCHA |
 | Mercado Livre | 🚧 a página não traz preço; caminho: API oficial | |
-| Shein, Shopee, TikTok Shop | ❌ preço só carregado por JavaScript | |
+| Shein, Shopee | ❌ preço só via JavaScript; com navegador automatizado (Playwright) respondem com CAPTCHA/verificação de tráfego | |
+| TikTok Shop | ❌ compra acontece dentro do app | |
+
+Antes de adicionar um link, confira o que cada método lê:
+
+```bash
+python -m precos.testar <link>
+```
+
+Ele mostra o preço de cada método (JSON-LD, meta tag, específico) e qual foi usado. Na Pichau, por exemplo, o JSON-LD dá o parcelado e uma meta tag dá lixo; só o específico acerta o Pix.
 
 ## Rodar local
 
